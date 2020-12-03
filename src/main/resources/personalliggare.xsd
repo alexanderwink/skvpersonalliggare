@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="se/skatteverket/ke/pl/1.1" targetNamespace="se/skatteverket/ke/pl/1.1" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:annotation>
+		<xs:appinfo>
+			<SchemaMetadata xmlns="se/skatteverket/zl/SchemaMetadata/1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcq="http://purl.org/dc/terms/">
+				<dc:title>Personalliggare</dc:title>
+				<dc:description>XML-schema framtaget för Skatteverkets inhämtning av personalliggaruppgifter.</dc:description>
+				<dc:publisher>Skatteverket</dc:publisher>
+				<dc:creator>
+					<dcq:contact>Servicejouren, se http://www.skatteverket.se</dcq:contact>
+					<dcq:owner>Skatteverket Personalliggare</dcq:owner>
+				</dc:creator>
+				<dc:date>
+					<dcq:created>2015-10-23</dcq:created>
+				</dc:date>
+				<dc:subject>Förebyggande kontroll</dc:subject>
+			</SchemaMetadata>
+		</xs:appinfo>
+	</xs:annotation>
+	<xs:element name="Personalliggare">
+		<xs:annotation>
+			<xs:documentation>Rootelement för XML som används vid insamling av personalliggaruppgifter.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Metadata" type="MetadataTYPE" nillable="false"/>
+				<xs:choice>
+					<xs:element name="ArbetsplatsBygg" type="ArbetsplatsByggTYPE" nillable="false"/>
+				</xs:choice>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<!-- Komplexa typer -->
+	<xs:complexType name="MetadataTYPE">
+		<xs:annotation>
+			<xs:documentation>Information om innehållet i XML-filen. Bland annat när och hur det skapats samt information om eventuell filtrering.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Verksamhetstyp" type="VerksamhetstypTYPE" nillable="false"/>
+			<xs:element name="Skapad" type="SkapadTYPE" nillable="false"/>
+			<xs:choice>
+				<xs:element name="FilterBygg" type="FilterByggTYPE"/>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SkapadTYPE">
+		<xs:annotation>
+			<xs:documentation>Information om när och av vilken mjukvara som filen skapades.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="TidpunktSkapad" type="xs:dateTime" nillable="false"/>
+			<xs:element name="SkapadAvMjukvara" nillable="false">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Mjukvaruversion" nillable="false">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FilterTYPE">
+		<xs:annotation>
+			<xs:documentation>Visar vilken filtrering som användes då XML-filen skapades. Elementet skall lämnas tomt om filen innehåller ett totaluttag från personalliggaren. För att indikera en "ögonblicksbild" sätts From och Tom till samma värde.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Period" type="PeriodTYPE" minOccurs="0"/>
+			<xs:element name="VerksamPerson" type="PersonValfriTYPE" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FilterByggTYPE">
+		<xs:annotation>
+			<xs:documentation>Visar vilken filtrering som användes då XML-filen skapades. Elementet skall lämnas tomt om filen innehåller ett totaluttag från personalliggaren. För att indikera en "ögonblicksbild" sätts From och Tom till samma värde.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="FilterTYPE">
+				<xs:sequence>
+					<xs:element name="Byggverksamhetsbedrivare" type="OrganisationValfriTYPE" minOccurs="0"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ArbetsplatsByggTYPE">
+		<xs:annotation>
+			<xs:documentation>Information om arbetsplatsen.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Byggherre" type="OrganisationValfriTYPE" nillable="false" minOccurs="0"/>
+			<xs:element name="Aktivitetslogg" nillable="false">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Aktivitet" type="AktivitetByggTYPE" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="Identifikationsnummer" use="required">
+			<xs:simpleType>
+				<xs:restriction base="IdentifikationsnummerTYPE"/>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="AktivitetByggTYPE">
+		<xs:annotation>
+			<xs:documentation>Information om en enskild aktivitet i aktivitetsloggen.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Loggtidpunkt" type="xs:dateTime" nillable="false"/>
+			<xs:element name="Rattelse" type="RattelseTYPE" nillable="false" minOccurs="0"/>
+			<xs:element name="Byggverksamhetsbedrivare" type="OrganisationTYPE" nillable="false" minOccurs="0"/>
+			<xs:element name="VerksamPerson" type="PersonTYPE" nillable="false"/>
+			<xs:element name="Arbetspass" nillable="false">
+				<xs:complexType>
+					<xs:choice>
+						<xs:element name="Starttidpunkt" type="xs:dateTime" nillable="false"/>
+						<xs:element name="Sluttidpunkt" type="xs:dateTime" nillable="false"/>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Kommentar" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="AktivitetsID" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:minLength value="1"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="PersonTYPE">
+		<xs:annotation>
+			<xs:documentation>Personuppgifter för en verksam person. Ett identitetsnummer kan vara ett svenskt personnummer eller samordningsnummer. Saknas dessa nummer används utländsk motsvarighet eller passnummer istället.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Namn" nillable="false">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Identitetsnummer" nillable="false">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PersonValfriTYPE">
+		<xs:annotation>
+			<xs:documentation>Likadan som typen PersonTYPE, men används då elementen är valfria att ange.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Namn" nillable="false" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string"/>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Identitetsnummer" nillable="false" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string"/>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OrganisationTYPE">
+		<xs:annotation>
+			<xs:documentation>Uppgifter för en organisation. Saknas svenskt organisationsnummer används VAT-nummer eller utländsk motsvarighet istället.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Namn" nillable="false">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Organisationsnummer" nillable="false">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OrganisationValfriTYPE">
+		<xs:annotation>
+			<xs:documentation>Likadan som typen OrganisationTYPE, men används då elementen är valfria att ange.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Namn" nillable="false" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string"/>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Organisationsnummer" nillable="false" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string"/>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="RattelseTYPE">
+		<xs:annotation>
+			<xs:documentation>Information om en rättelse i personalliggaren.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="RattarAktivitet" nillable="false">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Rattelsetyp" type="RattelsetypTYPE"/>
+			<xs:element name="UtfordAv" type="PersonTYPE" nillable="false"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PeriodTYPE">
+		<xs:annotation>
+			<xs:documentation>Anger en period med två tidpunkter from och tom.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="From" type="xs:dateTime" minOccurs="0"/>
+			<xs:element name="Tom" type="xs:dateTime" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Simpla typer -->
+	<xs:simpleType name="IdentifikationsnummerTYPE">
+		<xs:annotation>
+			<xs:documentation>Identifikationsnummer för en personalliggare.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="PL\d{4}[A-Z]{2}\d{5}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="VerksamhetstypTYPE">
+		<xs:annotation>
+			<xs:documentation>Anger vilken typ av verksamhet personalliggaren gäller för.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Bygg"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="RattelsetypTYPE">
+		<xs:annotation>
+			<xs:documentation>Anger om rättelsen ersätter eller makulerar en felaktig aktivitet.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Ersatter"/>
+			<xs:enumeration value="Makulerar"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>
